@@ -9,6 +9,8 @@ import java.util.Scanner;
 
 public class Inputter {
     public static final String DATE_PATTERN = "MM/dd/yyyy";
+    public static final String LICENSE_PLATE_REGEX =
+            "^[0-9]{2}[A-Za-z]-[0-9]{3}\\.[0-9]{2}$";
     private final Scanner scanner;
 
     public Inputter(Scanner scanner) {
@@ -55,9 +57,6 @@ public class Inputter {
         }
     }
 
-    /**
-     * Reads a long value greater than or equal to {@code minInclusive}.
-     */
     public long getLong(String inpMsg, long minInclusive) {
         while (true) {
             Long number = tryParseLong(readLine(inpMsg).trim());

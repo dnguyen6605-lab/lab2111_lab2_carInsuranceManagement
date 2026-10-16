@@ -11,8 +11,7 @@ import Utils.Inputter;
 import Utils.Menu;
 
 public class CarController {
-    private static final DateTimeFormatter DATE_FORMAT =
-            DateTimeFormatter.ofPattern(Inputter.DATE_PATTERN);
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(Inputter.DATE_PATTERN);
 
     private final CarService carService;
     private final Inputter inputter;
@@ -29,7 +28,7 @@ public class CarController {
             String brand = inputter.getNonEmptyString("Brand: ");
             long value = inputter.getLong("Vehicle value (> 999): ", 1000);
             LocalDate date = inputter.getDate(
-                "Registration date (" + Inputter.DATE_PATTERN + "): ", Inputter.DATE_PATTERN);
+                    "Registration date (" + Inputter.DATE_PATTERN + "): ", Inputter.DATE_PATTERN);
             String place = inputter.getNonEmptyString("Registration place: ");
             int type = inputter.getOneOf("Vehicle type (5, 7 or 9 seats): ", 5, 7, 9);
             Car car = new Car(plate, owner, brand, value, date, place, type);
@@ -42,8 +41,11 @@ public class CarController {
     }
 
     public void findCar() {
-        String plate = inputter.getNonEmptyString("License plate: ")
-                .toUpperCase();
+        String plate = inputter.getString(
+                "License plate (e.g. 51A-123.45): ",
+                Inputter.LICENSE_PLATE_REGEX,
+                "Invalid license plate. Required format: 99X-999.99 (e.g. 51A-123.45)"
+        ).toUpperCase();
         Car car = carService.findCar(plate);
         if (car == null) {
             System.out.println("Unregistered vehicle");
@@ -53,8 +55,11 @@ public class CarController {
     }
 
     public void updateCar() {
-        String plate = inputter.getNonEmptyString("License plate: ")
-                .toUpperCase();
+        String plate = inputter.getString(
+                "License plate (e.g. 51A-123.45): ",
+                Inputter.LICENSE_PLATE_REGEX,
+                "Invalid license plate. Required format: 99X-999.99 (e.g. 51A-123.45)"
+        ).toUpperCase();
         Car current = carService.findCar(plate);
         if (current == null) {
             System.out.println("Unregistered vehicle");
@@ -74,12 +79,16 @@ public class CarController {
         Car updated = new Car(current.getLisencePlate(), owner, brand, value,
                 registrationDate, registrationPlace, vehicleType);
         System.out.println(carService.updateCar(updated)
-                ? "Update successful" : "Update failed");
+                ? "Update successful"
+                : "Update failed");
     }
 
     public void deleteCar() {
-        String plate = inputter.getNonEmptyString("License plate: ")
-                .toUpperCase();
+        String plate = inputter.getString(
+                "License plate (e.g. 51A-123.45): ",
+                Inputter.LICENSE_PLATE_REGEX,
+                "Invalid license plate. Required format: 99X-999.99 (e.g. 51A-123.45)"
+        ).toUpperCase();
         Car car = carService.findCar(plate);
         if (car == null) {
             System.out.println("Unregistered vehicle");
@@ -107,17 +116,18 @@ public class CarController {
     }
 
     public void reportUninsured() {
-            Menu uninsuredMenu = new Menu("Sort uninsured cars by:",inputter);
-            uninsuredMenu.addNewOption("License plate");
-            uninsuredMenu.addNewOption("Owner");
-            uninsuredMenu.addNewOption("Registration date");
-            uninsuredMenu.addNewOption("Vehicle type");
-            uninsuredMenu.show();
-            int field = uninsuredMenu.getchoice();
-            boolean asc = chooseAscending();
-            List<Car> cars = carService.getUninsuredCars(field, asc);
-            printUninsuredReport(field, asc, cars);
-        }
+        Menu uninsuredMenu = new Menu("Sort uninsured cars by:", inputter);
+        uninsuredMenu.addNewOption("License plate");
+        uninsuredMenu.addNewOption("Owner");
+        uninsuredMenu.addNewOption("Registration date");
+        uninsuredMenu.addNewOption("Vehicle type");
+        uninsuredMenu.show();
+        int field = uninsuredMenu.getchoice();
+        boolean asc = chooseAscending();
+        List<Car> cars = carService.getUninsuredCars(field, asc);
+        printUninsuredReport(field, asc, cars);
+    }
+
     public void saveData() {
         try {
             carService.save();
@@ -139,22 +149,28 @@ public class CarController {
             System.out.println("Load failed: " + ex.getMessage());
         }
     }
-    //check dup  + cấm null
+
+    // check dup + cấm null
     private String readUniquePlate() {
         while (true) {
-            String plate = inputter.getNonEmptyString("License plate: ")
-                    .toUpperCase();
+            String plate = inputter.getString(
+                    "License plate (e.g. 51A-123.45): ",
+                    Inputter.LICENSE_PLATE_REGEX,
+                    "Invalid license plate. Required format: 99X-999.99 (e.g. 51A-123.45)"
+            ).toUpperCase();
             if (!carService.checkExist(plate)) {
                 return plate;
             }
             System.out.println("That license plate is already registered.");
         }
     }
+
     // show infor
     private void printCar(Car car) {
         System.out.println(car);
     }
-    //Show uninsurance
+
+    // Show uninsurance
     private void printUninsuredReport(int field, boolean asc, List<Car> cars) {
         System.out.println("\nReport: UNINSURED CARS");
         System.out.println("Sorted by: " + carFieldLabel(field));
@@ -177,10 +193,14 @@ public class CarController {
 
     private static String carFieldLabel(int field) {
         switch (field) {
-            case 1: return "License plate";
-            case 2: return "Owner";
-            case 3: return "Registration date";
-            default: return "Vehicle type";
+            case 1:
+                return "License plate";
+            case 2:
+                return "Owner";
+            case 3:
+                return "Registration date";
+            default:
+                return "Vehicle type";
         }
     }
 

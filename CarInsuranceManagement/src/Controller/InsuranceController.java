@@ -92,8 +92,11 @@ public class InsuranceController {
 
     private String readRegisteredPlate() {
         while (true) {
-            String plate = inputter.getNonEmptyString("License plate: ")
-                    .toUpperCase();
+            String plate = inputter.getString(
+                    "License plate (e.g. 51A-123.45): ",
+                    Inputter.LICENSE_PLATE_REGEX,
+                    "Invalid license plate. Required format: 99X-999.99 (e.g. 51A-123.45)"
+            ).toUpperCase();
             if (insuranceService.checkCarExist(plate)) {
                 return plate;
             }
